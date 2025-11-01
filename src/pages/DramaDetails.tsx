@@ -2,6 +2,8 @@ import { useParams, Link } from "react-router-dom";
 import { dramas } from "@/data/dramas";
 import Footer from "@/components/Footer";
 import Navbar from "@/components/Navbar";
+import ReviewSection from "@/components/ReviewSection";
+import FavoriteButton from "@/components/FavoriteButton";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { ExternalLink, Play, ArrowLeft } from "lucide-react";
@@ -41,6 +43,7 @@ const DramaDetails = () => {
             className="w-full h-full object-cover"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-background via-background/80 to-transparent" />
+          <FavoriteButton dramaId={drama.id} className="absolute top-4 right-4" />
         </div>
 
         <div className="container mx-auto px-4 sm:px-6 -mt-32 relative z-10">
@@ -142,6 +145,11 @@ const DramaDetails = () => {
                 </div>
               </CardContent>
             </Card>
+
+            {/* Reviews Section */}
+            <div className="mt-8">
+              <ReviewSection dramaId={drama.id} />
+            </div>
           </div>
 
           {/* Related Dramas */}
