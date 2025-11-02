@@ -5,20 +5,26 @@ import { toast } from 'sonner';
 
 export interface Review {
   id: string;
+  drama_id: string;
+  rating: number;
+  comment: string | null;
+  created_at: string;
+  author_name: string | null;
+}
+
+interface UserReview {
+  id: string;
   user_id: string;
   drama_id: string;
   rating: number;
   comment: string | null;
   created_at: string;
-  profiles: {
-    display_name: string | null;
-  };
 }
 
 export const useReviews = (dramaId: string) => {
   const { user } = useAuth();
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [userReview, setUserReview] = useState<Review | null>(null);
+  const [userReview, setUserReview] = useState<UserReview | null>(null);
   const [loading, setLoading] = useState(true);
   const [averageRating, setAverageRating] = useState(0);
 
@@ -28,31 +34,34 @@ export const useReviews = (dramaId: string) => {
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase
-        .from('reviews')
-        .select(`
-          *,
-          profiles (
-            display_name
-          )
-        `)
+      // Fetch public reviews (without user_id exposure)
+      const { data: publicReviews, error: publicError } = await supabase
+        .from('reviews_public')
+        .select('*')
         .eq('drama_id', dramaId)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (publicError) throw publicError;
 
-      setReviews(data || []);
+      setReviews(publicReviews || []);
 
       // Calculate average rating
-      if (data && data.length > 0) {
-        const avg = data.reduce((sum, r) => sum + r.rating, 0) / data.length;
+      if (publicReviews && publicReviews.length > 0) {
+        const avg = publicReviews.reduce((sum, r) => sum + r.rating, 0) / publicReviews.length;
         setAverageRating(Math.round(avg * 10) / 10);
       }
 
-      // Find user's review
+      // Fetch user's own review if authenticated (from main table)
       if (user) {
-        const myReview = data?.find(r => r.user_id === user.id);
-        setUserReview(myReview || null);
+        const { data: myReview, error: userError } = await supabase
+          .from('reviews')
+          .select('*')
+          .eq('drama_id', dramaId)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (userError) throw userError;
+        setUserReview(myReview);
       }
     } catch (error) {
       console.error('Error fetching reviews:', error);

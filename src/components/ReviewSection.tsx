@@ -105,13 +105,17 @@ const ReviewSection = ({ dramaId }: ReviewSectionProps) => {
               <div className="space-y-4">
                 <h3 className="font-semibold">Comentários da comunidade</h3>
                 {reviews
-                  .filter((r) => r.user_id !== user?.id)
+                  .filter((r) => {
+                    // Filter out user's own review if they have one
+                    if (!userReview) return true;
+                    return r.id !== userReview.id;
+                  })
                   .map((review) => (
                     <div key={review.id} className="space-y-2">
                       <div className="flex items-start justify-between">
                         <div>
                           <p className="font-medium">
-                            {review.profiles?.display_name || 'Usuário'}
+                            {review.author_name || 'Usuário'}
                           </p>
                           {renderStars(review.rating)}
                         </div>
