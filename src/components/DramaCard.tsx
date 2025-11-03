@@ -9,12 +9,19 @@ interface DramaCardProps {
 }
 
 const DramaCard = ({ drama }: DramaCardProps) => {
+  
+  // 🎯 CORREÇÃO: Concatena o caminho base do repositório com o caminho da imagem
+  // Isso garante que o caminho seja lido como: /dorama-blossom-voyage/images/drama-amor-lua.jpg
+  const basePath = '/dorama-blossom-voyage';
+  const imageUrl = `${basePath}${drama.image}`;
+  
   return (
     <Card className="group overflow-hidden border-border hover:shadow-elegant transition-all duration-300 hover:-translate-y-1">
       <Link to={`/drama/${drama.id}`}>
         <div className="relative aspect-[2/3] overflow-hidden">
           <img
-            src={drama.image}
+            // ✅ Aplicando o caminho corrigido
+            src={imageUrl} 
             alt={drama.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
@@ -24,6 +31,7 @@ const DramaCard = ({ drama }: DramaCardProps) => {
       </Link>
       
       <CardContent className="p-4">
+        {/* ... (restante do código permanece inalterado) ... */}
         <Link to={`/drama/${drama.id}`}>
           <h3 className="font-playfair font-bold text-lg mb-1 line-clamp-1 group-hover:text-primary transition-colors">
             {drama.title}
