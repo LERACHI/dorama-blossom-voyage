@@ -76,6 +76,7 @@ const ReviewSection = ({ dramaId }: ReviewSectionProps) => {
                 value={comment}
                 onChange={(e) => setComment(e.target.value)}
                 rows={3}
+                maxLength={1000}
               />
               <div className="flex gap-2">
                 <Button type="submit" disabled={rating === 0}>
