@@ -1,43 +1,48 @@
-# Simple workflow for deploying static content to GitHub Pages
-name: Deploy static content to Pages
+# Arquivo: .github/workflows/static.yml
+
+name: Deploy static content to Pages # Nome que aparece na aba Actions
 
 on:
-  # Runs on pushes targeting the default branch
   push:
-    branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
-  workflow_dispatch:
-
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
-permissions:
-  contents: read
-  pages: write
-  id-token: write
-
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
-concurrency:
-  group: "pages"
-  cancel-in-progress: false
+    branches: ['main'] # Aciona sempre que houver push no branch principal
 
 jobs:
-  # Single deploy job since we're just deploying
+  # 1. JOB DE BUILD: Cria a pasta /dist e a sobe como Artefato
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout # Baixa o código do seu repositório
+        uses: actions/checkout@v4
+
+      # --- [ INSTALAÇÃO e BUILD ] ---
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20 # Use a versão do Node que seu projeto precisa
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build project # Seu comando para gerar a pasta /dist
+        run: npm run build
+
+      # --- [ UPLOAD DO ARTEFATO ] ---
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          # 👇 PONTO CHAVE: Garante que só a pasta dist será publicada
+          path: './dist' 
+          
+  # 2. JOB DE DEPLOY: Baixa o Artefato e Publica
   deploy:
     environment:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
+    # 👇 ESSENCIAL: Garante que este job só roda SE o job 'build' rodar
+    needs: build 
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          # Upload entire repository
-          path: './dist'
       - name: Deploy to GitHub Pages
         id: deployment
         uses: actions/deploy-pages@v4
