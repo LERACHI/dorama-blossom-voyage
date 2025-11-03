@@ -1,37 +1,43 @@
 # Arquivo: .github/workflows/static.yml
 
-name: Deploy static content to Pages # Nome que aparece na aba Actions
+name: Deploy static content to Pages
 
 on:
   push:
-    branches: ['main'] # Aciona sempre que houver push no branch principal
+    branches: ['main']
+
+# 🔑 Adicione este bloco para resolver o erro 'id-token: write'
+permissions:
+  contents: read
+  pages: write
+  id-token: write # Permissão essencial para actions/deploy-pages@v4
 
 jobs:
   # 1. JOB DE BUILD: Cria a pasta /dist e a sobe como Artefato
   build:
     runs-on: ubuntu-latest
     steps:
-      - name: Checkout # Baixa o código do seu repositório
+      - name: Checkout
         uses: actions/checkout@v4
 
       # --- [ INSTALAÇÃO e BUILD ] ---
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: 20 # Use a versão do Node que seu projeto precisa
+          node-version: 20 # Mantenha a versão correta do Node
           cache: 'npm'
 
       - name: Install dependencies
         run: npm install
 
-      - name: Build project # Seu comando para gerar a pasta /dist
+      - name: Build project
+        # Lembre-se, este passo só funcionará se você corrigiu o caminho './index.css'
         run: npm run build
 
       # --- [ UPLOAD DO ARTEFATO ] ---
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # 👇 PONTO CHAVE: Garante que só a pasta dist será publicada
           path: './dist' 
           
   # 2. JOB DE DEPLOY: Baixa o Artefato e Publica
@@ -40,8 +46,7 @@ jobs:
       name: github-pages
       url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
-    # 👇 ESSENCIAL: Garante que este job só roda SE o job 'build' rodar
-    needs: build 
+    needs: build # Garante que só roda depois que o build for concluído
     steps:
       - name: Deploy to GitHub Pages
         id: deployment
