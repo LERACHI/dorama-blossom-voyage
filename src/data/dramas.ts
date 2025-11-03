@@ -70,7 +70,7 @@ export const dramas: Drama[] = [
     country: "China",
     genre: ["Romance", "Música", "Drama"],
     synopsis: "Uma pianista prodígio que perdeu a audição em um acidente encontra um jovem compositor determinado a ajudá-la a redescobrir a música através de outros sentidos. Juntos, eles criam uma sinfonia única que transcende as barreiras físicas e emocionais. Uma jornada sobre superação, paixão e o poder transformador da música.",
-    image: "/simages/drama-som-coracao.jpg",
+    image: "/images/drama-som-coracao.jpg",
     year: 2023,
     episodes: 24,
     cast: [
